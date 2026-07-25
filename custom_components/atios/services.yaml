@@ -1,0 +1,60 @@
+send_dali_frame:
+  name: Send DALI frame
+  description: Send a raw DALI forward frame to the SmartCore bus.
+  fields:
+    data:
+      name: Data bytes
+      description: "Frame bytes, e.g. [255, 16] for broadcast GO TO SCENE 0."
+      required: true
+      example: "[255, 16]"
+      selector:
+        object:
+    bits:
+      name: Bits
+      description: Frame length in bits.
+      default: 16
+      selector:
+        select:
+          options: ["16", "24", "25"]
+    send_twice:
+      name: Send twice
+      description: Repeat the frame (required for DALI configuration commands).
+      default: false
+      selector:
+        boolean:
+    wait_for_answer:
+      name: Wait for answer
+      description: Treat as a QUERY and wait for a backward frame.
+      default: false
+      selector:
+        boolean:
+
+recall_scene:
+  name: Recall scene
+  description: Recall a DALI scene (0-15) on broadcast, a group, or a single address.
+  fields:
+    scene:
+      name: Scene
+      description: Scene number 0-15.
+      required: true
+      selector:
+        number:
+          min: 0
+          max: 15
+          mode: box
+    address:
+      name: Short address
+      description: Target a single control gear (0-63). Omit for broadcast.
+      selector:
+        number:
+          min: 0
+          max: 63
+          mode: box
+    group:
+      name: Group
+      description: Target a DALI group (0-15). Omit for broadcast.
+      selector:
+        number:
+          min: 0
+          max: 15
+          mode: box

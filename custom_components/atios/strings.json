@@ -1,0 +1,40 @@
+{
+  "config": {
+    "flow_title": "{name}",
+    "step": {
+      "user": {
+        "title": "Atios SmartCore",
+        "description": "Enter the SmartCore IP address or hostname.",
+        "data": {
+          "host": "Host",
+          "line": "DALI line"
+        }
+      },
+      "zeroconf_confirm": {
+        "title": "Atios SmartCore found",
+        "description": "Add the SmartCore \"{name}\" at {host}?"
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not reach the SmartCore at that address."
+    },
+    "abort": {
+      "already_configured": "This SmartCore is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "SmartCore web panel",
+        "description": "Show the SmartCore web interface as a sidebar panel. Note: an http:// URL will not embed inside an https:// Home Assistant (mixed content), and the SmartCore must not send X-Frame-Options: DENY.",
+        "data": {
+          "panel_enabled": "Show sidebar panel",
+          "panel_url": "Panel URL",
+          "panel_title": "Sidebar title",
+          "panel_icon": "Sidebar icon",
+          "panel_require_admin": "Admin users only"
+        }
+      }
+    }
+  }
+}
