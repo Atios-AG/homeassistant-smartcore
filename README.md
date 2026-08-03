@@ -54,9 +54,3 @@ To show the SmartCore web UI in the sidebar: **Settings → Devices & Services �
    three match entries in `manifest.json`, adjust them; the `async_step_zeroconf`
    handler already tolerates missing/renamed TXT keys and falls back to the host.
 
-## Bounty deliverables (Atios) — mapping
-
-1. Discover in network → 🟨 zeroconf flow (verify service/TXT on device, step 5)
-2. Show web interface in HA → ✅ iframe sidebar panel (Settings → Devices → Atios → Configure)
-3. Firmware update notifications → `update` platform (deferred)
-4. Send/receive custom DALI packets → ✅ `send_dali_frame` + monitor stream
