@@ -40,8 +40,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: AtiosConfigEntry) -> boo
 
 
 async def _async_update_listener(hass: HomeAssistant, entry: AtiosConfigEntry) -> None:
-    """Re-apply the panel when options change (no full reload needed)."""
-    await async_register_panel(hass, entry)
+    """Reload on options change (recreates light entities and re-applies panel)."""
+    await hass.config_entries.async_reload(entry.entry_id)
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: AtiosConfigEntry) -> bool:

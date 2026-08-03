@@ -1,63 +1,61 @@
 """Connection hub for a single Atios SmartCore.
 
-Owns one persistent websocket to the SmartCore (via the ``lunatone-dali2-iot``
-``WebSocketClient``) and:
+Transport is native aiohttp — no external DALI library. The SmartCore exposes:
 
-  * sends raw DALI frames (``send_frame``), with a confirmed HTTP fallback to
-    ``POST /api/dali/iface`` in case WS send misbehaves on the emulated stack;
-  * runs a background monitor loop that turns ``DaliMonitorEvent`` frames into
-    HA bus events and routes ``DaliAnswerEvent`` results to whoever is waiting
-    on a QUERY;
-  * auto-reconnects with capped backoff.
+  * a confirmed HTTP endpoint ``POST /api/dali/iface`` that sends a raw DALI
+    frame and (with ``wait_response``) returns the answer as
+    ``{"success":true,"bus_busy":false,"collision_detected":false,"data":<byte>}``;
+  * an emulated Lunatone websocket that streams ``daliMonitor`` frames (bus
+    traffic, incl. DALI-2 input/button events).
 
-Design intent matches the rest of the Tuliheina stack: local push, no polling
-loops beyond what QUERY needs, no middleware.
+Lights and status use the HTTP path (verified on device). The websocket is used
+only to *receive* monitor frames for buttons; it is best-effort — if it can't be
+reached (endpoint/envelope not yet confirmed on this firmware), lights are
+unaffected and it retries quietly. The exact ws URL/envelope get finalised with
+tools/monitor.py once physical buttons exist.
 """
 
 from __future__ import annotations
 
 import asyncio
 import contextlib
+import json
 import logging
 from collections.abc import Callable
+from dataclasses import dataclass
 
 import aiohttp
-from dali2iot import (
-    DaliAnswerEvent,
-    DaliFrame,
-    DaliFrameMode,
-    DaliMonitorEvent,
-    WebSocketClient,
-)
 
 from .const import RECONNECT_MAX, RECONNECT_MIN
 from .dali import Frame
 
 _LOGGER = logging.getLogger(__name__)
 
-# how long to wait for a daliAnswer to a QUERY before giving up
-ANSWER_TIMEOUT = 2.0
+
+@dataclass
+class MonitorFrame:
+    """A raw frame observed on the bus (decoded further by dali.decode_input_event)."""
+
+    data: list[int]
+    bits: int
+    line: int | None = None
+    framing_error: bool = False
 
 
 class AtiosHub:
-    """Manage the live connection to one SmartCore."""
+    """Manage HTTP control and the (optional) monitor websocket for one SmartCore."""
 
     def __init__(self, host: str, line: int, session: aiohttp.ClientSession) -> None:
-        # host is a bare IP/hostname; the library wants an http base_url
         self._base_url = host if host.startswith("http") else f"http://{host}"
         self._host = self._base_url.removeprefix("http://").removeprefix("https://")
+        self._ws_url = f"ws://{self._host}/"  # override once confirmed on device
         self._line = line
         self._session = session
 
-        self._ws: WebSocketClient | None = None
         self._task: asyncio.Task | None = None
         self._closing = False
-
-        # subscribers to monitored bus frames (InputEvent envelopes handled upstream)
-        self._monitor_cbs: list[Callable[[DaliMonitorEvent], None]] = []
-        # pending QUERY answers, keyed by nothing fancy: the emulated stack answers
-        # only the connection that asked, in order, so a single-slot future queue is enough
-        self._answer_waiters: asyncio.Queue[asyncio.Future] = asyncio.Queue()
+        self._ws_warned = False
+        self._monitor_cbs: list[Callable[[MonitorFrame], None]] = []
 
     @property
     def host(self) -> str:
@@ -67,7 +65,7 @@ class AtiosHub:
 
     async def async_start(self) -> None:
         self._closing = False
-        self._task = asyncio.create_task(self._run(), name=f"atios-{self._host}")
+        self._task = asyncio.create_task(self._run_monitor(), name=f"atios-{self._host}")
 
     async def async_stop(self) -> None:
         self._closing = True
@@ -75,99 +73,93 @@ class AtiosHub:
             self._task.cancel()
             with contextlib.suppress(asyncio.CancelledError):
                 await self._task
-        if self._ws:
-            with contextlib.suppress(Exception):
-                await self._ws.close()
-        self._ws = None
 
-    def add_monitor_listener(self, cb: Callable[[DaliMonitorEvent], None]) -> Callable[[], None]:
+    def add_monitor_listener(self, cb: Callable[[MonitorFrame], None]) -> Callable[[], None]:
         self._monitor_cbs.append(cb)
         return lambda: self._monitor_cbs.remove(cb)
 
-    # ---- monitor loop -----------------------------------------------------
+    # ---- monitor websocket (receive-only, best-effort) --------------------
 
-    async def _run(self) -> None:
+    async def _run_monitor(self) -> None:
         backoff = RECONNECT_MIN
         while not self._closing:
             try:
-                async with WebSocketClient(base_url=self._base_url) as ws:
-                    self._ws = ws
+                async with self._session.ws_connect(
+                    self._ws_url, heartbeat=30, timeout=aiohttp.ClientTimeout(total=10)
+                ) as ws:
+                    self._ws_warned = False
                     backoff = RECONNECT_MIN
-                    _LOGGER.info("Atios SmartCore %s: websocket connected", self._host)
-                    async for event in ws:
-                        self._dispatch(event)
+                    _LOGGER.info("Atios %s: monitor websocket connected", self._host)
+                    async for msg in ws:
+                        if msg.type == aiohttp.WSMsgType.TEXT:
+                            self._handle_ws_text(msg.data)
+                        elif msg.type in (aiohttp.WSMsgType.CLOSED, aiohttp.WSMsgType.ERROR):
+                            break
             except asyncio.CancelledError:
                 raise
-            except Exception as err:  # noqa: BLE001 — reconnect on anything
+            except Exception as err:  # noqa: BLE001
                 if self._closing:
                     break
-                _LOGGER.warning(
-                    "Atios SmartCore %s: websocket lost (%s); retrying in %ss",
-                    self._host,
-                    err,
-                    backoff,
-                )
+                # Quiet: the ws endpoint may not be confirmed yet on this firmware.
+                # Lights work over HTTP regardless; warn once, then debug.
+                if not self._ws_warned:
+                    _LOGGER.info(
+                        "Atios %s: monitor websocket unavailable (%s). Lights work "
+                        "over HTTP; button events start once the ws endpoint is "
+                        "confirmed. Retrying quietly.",
+                        self._host,
+                        err,
+                    )
+                    self._ws_warned = True
+                else:
+                    _LOGGER.debug("Atios %s: ws retry (%s)", self._host, err)
+            if not self._closing:
                 await asyncio.sleep(backoff)
                 backoff = min(RECONNECT_MAX, backoff * 2)
-            finally:
-                self._ws = None
 
-    def _dispatch(self, event: object) -> None:
-        if isinstance(event, DaliMonitorEvent):
-            for cb in list(self._monitor_cbs):
-                try:
-                    cb(event)
-                except Exception:  # noqa: BLE001
-                    _LOGGER.exception("Atios monitor listener failed")
-        elif isinstance(event, DaliAnswerEvent):
-            if not self._answer_waiters.empty():
-                fut = self._answer_waiters.get_nowait()
-                if not fut.done():
-                    fut.set_result(event)
+    def _handle_ws_text(self, raw: str) -> None:
+        """Parse a ws text message and dispatch monitor frames.
 
-    # ---- sending ----------------------------------------------------------
+        Envelope is the emulated Lunatone form ``{"type": ..., "data": {...}}``.
+        We match any message whose type mentions 'monitor' and pull the raw frame
+        bytes/bits defensively, since exact field names are confirmed with real
+        hardware traces. Non-monitor messages are ignored here.
+        """
+        try:
+            msg = json.loads(raw)
+        except (ValueError, TypeError):
+            return
+        if not isinstance(msg, dict):
+            return
+        mtype = str(msg.get("type", "")).lower()
+        if "monitor" not in mtype:
+            return
+        payload = msg.get("data", msg)
+        if not isinstance(payload, dict):
+            return
+        data = payload.get("data") or payload.get("dali_data") or payload.get("frame")
+        bits = payload.get("bits") or payload.get("number_of_bits")
+        if not isinstance(data, list) or not isinstance(bits, int):
+            return
+        frame = MonitorFrame(
+            data=[int(b) & 0xFF for b in data],
+            bits=int(bits),
+            line=payload.get("line"),
+            framing_error=bool(payload.get("framing_error", False)),
+        )
+        for cb in list(self._monitor_cbs):
+            try:
+                cb(frame)
+            except Exception:  # noqa: BLE001
+                _LOGGER.exception("Atios monitor listener failed")
+
+    # ---- sending / querying (HTTP, confirmed) -----------------------------
 
     async def send_frame(self, frame: Frame) -> list[int] | None:
-        """Send a DALI frame. Returns the answer bytes when the frame is a QUERY.
+        """Send a DALI frame over the confirmed HTTP endpoint.
 
-        Prefers the websocket path; falls back to the SmartCore-native HTTP
-        endpoint (confirmed working by Atios/community) if the WS isn't up.
+        Returns the answer byte(s) as list[int] for QUERY frames, else None.
         """
-        if self._ws is not None:
-            return await self._send_ws(frame)
-        return await self._send_http(frame)
-
-    async def _send_ws(self, frame: Frame) -> list[int] | None:
-        assert self._ws is not None
-        fut: asyncio.Future | None = None
-        if frame.wait_for_answer:
-            fut = asyncio.get_running_loop().create_future()
-            await self._answer_waiters.put(fut)
-
-        await self._ws.send_dali_frame(
-            DaliFrame(
-                line=frame.line if frame.line is not None else self._line,
-                number_of_bits=frame.bits,
-                mode=DaliFrameMode(
-                    send_twice=frame.send_twice,
-                    wait_for_answer=frame.wait_for_answer,
-                    priority=frame.priority,
-                ),
-                dali_data=list(frame.data),
-            )
-        )
-
-        if fut is None:
-            return None
-        try:
-            answer: DaliAnswerEvent = await asyncio.wait_for(fut, ANSWER_TIMEOUT)
-            return list(answer.dali_data) if answer.dali_data is not None else None
-        except asyncio.TimeoutError:
-            _LOGGER.debug("Atios %s: no answer to query %s", self._host, frame.data)
-            return None
-
-    async def _send_http(self, frame: Frame) -> list[int] | None:
-        """Confirmed native endpoint: POST http://<ip>/api/dali/iface."""
         payload = {
             "repeat_twice": frame.send_twice,
             "wait_response": frame.wait_for_answer,
@@ -176,30 +168,38 @@ class AtiosHub:
         }
         url = f"{self._base_url}/api/dali/iface"
         try:
-            async with self._session.post(url, json=payload, timeout=aiohttp.ClientTimeout(total=5)) as resp:
+            async with self._session.post(
+                url, json=payload, timeout=aiohttp.ClientTimeout(total=5)
+            ) as resp:
                 resp.raise_for_status()
                 if not frame.wait_for_answer:
                     return None
                 body = await resp.json(content_type=None)
-                # response shape to be confirmed against the device; be defensive
-                if isinstance(body, dict):
-                    return body.get("data") or body.get("dali_data")
+                # {"success":true,"bus_busy":false,"collision_detected":false,"data":255}
+                if not isinstance(body, dict):
+                    return None
+                if body.get("collision_detected"):
+                    _LOGGER.debug("Atios %s: DALI collision on %s", self._host, frame.data)
+                answer = body.get("data")
+                if answer is None:
+                    return None
+                if isinstance(answer, int):
+                    return [answer]
+                if isinstance(answer, list):
+                    return answer
                 return None
         except Exception as err:  # noqa: BLE001
             _LOGGER.error("Atios %s: HTTP send failed: %s", self._host, err)
             return None
 
     async def async_test_connection(self) -> bool:
-        """Cheap reachability check for the config flow: QUERY over HTTP."""
+        """Config-flow reachability check: gear-present query over HTTP."""
         from .dali import OP_QUERY_CONTROL_GEAR_PRESENT, Target, query
 
-        result = await self._send_http(query(Target.short(0), OP_QUERY_CONTROL_GEAR_PRESENT))
-        # A reachable SmartCore returns 2xx even if no gear answers; _send_http
-        # returning without raising is the real signal. We treat "no exception"
-        # as success by re-issuing and catching separately.
-        return result is not None or await self._http_reachable()
-
-    async def _http_reachable(self) -> bool:
+        result = await self.send_frame(query(Target.short(0), OP_QUERY_CONTROL_GEAR_PRESENT))
+        if result is not None:
+            return True
+        # gear may not answer; treat a live HTTP endpoint as reachable
         try:
             async with self._session.get(
                 f"{self._base_url}/api/dali/iface",

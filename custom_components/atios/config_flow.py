@@ -22,12 +22,14 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
 
 from .const import (
+    CONF_LIGHTS,
     CONF_LINE,
     CONF_PANEL,
     CONF_PANEL_ADMIN,
     CONF_PANEL_ICON,
     CONF_PANEL_TITLE,
     CONF_PANEL_URL,
+    DEFAULT_LIGHTS,
     DEFAULT_LINE,
     DEFAULT_PANEL,
     DEFAULT_PANEL_ADMIN,
@@ -71,6 +73,10 @@ class AtiosConfigFlow(ConfigFlow, domain=DOMAIN):
                 ),
             }
         )
+        return self.async_show_form(
+            step_id="user", data_schema=schema, errors=errors
+        )
+
     async def async_step_zeroconf(
         self, discovery_info: ZeroconfServiceInfo
     ) -> ConfigFlowResult:
@@ -134,6 +140,14 @@ class AtiosOptionsFlow(OptionsFlow):
             # blank URL -> fall back to the default (http://host/)
             if not user_input.get(CONF_PANEL_URL):
                 user_input.pop(CONF_PANEL_URL, None)
+            # parse "0, 1, 2" -> [0, 1, 2]; ignore junk
+            raw = str(user_input.get(CONF_LIGHTS, ""))
+            addrs: list[int] = []
+            for part in raw.replace(";", ",").split(","):
+                part = part.strip()
+                if part.isdigit() and 0 <= int(part) <= 63:
+                    addrs.append(int(part))
+            user_input[CONF_LIGHTS] = sorted(set(addrs))
             return self.async_create_entry(data=user_input)
 
         opts = {**self.config_entry.data, **self.config_entry.options}
@@ -141,8 +155,12 @@ class AtiosOptionsFlow(OptionsFlow):
             opts.get(CONF_PANEL_URL)
             or f"http://{opts.get(CONF_HOST, '')}/"
         )
+        lights_default = ", ".join(
+            str(a) for a in opts.get(CONF_LIGHTS, DEFAULT_LIGHTS)
+        )
         schema = vol.Schema(
             {
+                vol.Optional(CONF_LIGHTS, default=lights_default): str,
                 vol.Optional(
                     CONF_PANEL, default=opts.get(CONF_PANEL, DEFAULT_PANEL)
                 ): bool,

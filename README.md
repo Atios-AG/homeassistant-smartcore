@@ -17,8 +17,8 @@ with a fallback to the native `POST /api/dali/iface` HTTP endpoint.
 | DALI frame encode/decode (`dali.py`) | ✅ verified against reference frames (`FF 10` goto-scene, `01 91` query-gear-present) |
 | WS transport + reconnect + HTTP fallback (`hub.py`) | ✅ written against the documented library API; needs a device to confirm the emulated stack behaves identically |
 | Broadcast light + brightness/on/off | ✅ first cut |
-| Per-address / per-group lights | 🟨 plumbing present, address list not wired (needs bus scan or options flow) |
-| QUERY ACTUAL LEVEL status read | 🟨 single-address only; verify answer byte order on device |
+| Per-address lights | ✅ configurable via options flow (confirmed on device: LED controller at A0) |
+| QUERY status read | ✅ HTTP answer shape confirmed on device (`{success,bus_busy,collision_detected,data}`) |
 | `send_dali_frame` / `recall_scene` services | ✅ |
 | DALI-2 event decode (`dali.py`) | ✅ 62386-103/-301, verified byte-for-byte vs python-dali on 585 frames |
 | Button events (`event.py`) | ✅ buttons auto-appear on first press with named gestures (Device scheme); Device/Instance scheme emits raw event_info |

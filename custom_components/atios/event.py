@@ -14,10 +14,9 @@ from __future__ import annotations
 
 import logging
 
-from dali2iot import DaliMonitorEvent
 from homeassistant.components.event import EventEntity
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers.device_info import DeviceInfo
+from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import AtiosConfigEntry
@@ -28,6 +27,7 @@ from .dali import (
     InputEvent,
     decode_input_event,
 )
+from .hub import MonitorFrame
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -56,7 +56,7 @@ class _ButtonManager:
         self._buttons: dict[str, AtiosButtonEvent] = {}
 
     @callback
-    def on_monitor(self, event: DaliMonitorEvent) -> None:
+    def on_monitor(self, event: MonitorFrame) -> None:
         if getattr(event, "framing_error", False):
             return
         decoded = decode_input_event(list(event.data), event.bits)

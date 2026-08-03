@@ -15,6 +15,10 @@ CONF_PANEL_TITLE = "panel_title"
 CONF_PANEL_ICON = "panel_icon"
 CONF_PANEL_ADMIN = "panel_require_admin"
 
+# options (lights)
+CONF_LIGHTS = "lights"  # list[int] of DALI short addresses to expose as lights
+DEFAULT_LIGHTS: list[int] = [0]  # confirmed on device: LED controller sits at A0
+
 DEFAULT_LINE = 0
 DEFAULT_PANEL = True
 DEFAULT_PANEL_TITLE = "SmartCore"

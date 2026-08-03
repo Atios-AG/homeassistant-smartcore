@@ -1,64 +1,92 @@
 #!/usr/bin/env python3
-"""Standalone DALI bus tracer for calibrating the Atios SmartCore integration.
+"""Standalone DALI monitor/tracer for calibrating the Atios SmartCore.
 
-Connects straight to a SmartCore's emulated Lunatone websocket, decodes every
-monitored frame with the integration's own decoder, and prints it. Use this to
-confirm button gestures without running Home Assistant:
+Native aiohttp websocket client (no dali2iot). Connects to the SmartCore's
+emulated Lunatone websocket, prints every message raw, and decodes anything that
+looks like a monitored DALI frame with the integration's own decoder.
 
-    pip install lunatone-dali2-iot
-    python3 tools/monitor.py 10.10.20.x
+    pip install aiohttp
+    python3 tools/monitor.py 10.10.10.6            # default ws://<host>/
+    python3 tools/monitor.py 10.10.10.6 ws://10.10.10.6/dali/ws   # explicit URL
 
-Press each physical button once per gesture and watch the decoded lines. If a
-button uses the Device/Instance scheme (gesture shows as "?"), note its
-event_info and map it via PUSHBUTTON_EVENTS in dali.py.
+Use this to (a) discover the correct ws URL — try a few paths until one connects —
+and (b) confirm the daliMonitor envelope by pressing physical buttons and reading
+the raw JSON printed for each frame.
 """
 
 from __future__ import annotations
 
 import asyncio
 import importlib.util
+import json
 import sys
 from pathlib import Path
 
-# import the pure decoder from the integration without needing Home Assistant
-_dali_path = Path(__file__).resolve().parent.parent / "custom_components" / "atios" / "dali.py"
-_spec = importlib.util.spec_from_file_location("atios_dali", _dali_path)
+import aiohttp
+
+_p = Path(__file__).resolve().parent.parent / "custom_components" / "atios" / "dali.py"
+_spec = importlib.util.spec_from_file_location("atios_dali", _p)
 dali = importlib.util.module_from_spec(_spec)
 sys.modules["atios_dali"] = dali
 _spec.loader.exec_module(dali)
 
-from dali2iot import DaliAnswerEvent, DaliMonitorEvent, WebSocketClient
+# candidate ws paths to try if none given (SmartCore ws endpoint unconfirmed)
+CANDIDATES = ["/", "/ws", "/dali/ws", "/api/ws", "/socket"]
 
 
-async def main(host: str) -> None:
-    base = host if host.startswith("http") else f"http://{host}"
-    print(f"connecting to {base} ... (Ctrl-C to stop)\n")
-    async with WebSocketClient(base_url=base) as ws:
-        async for event in ws:
-            if isinstance(event, DaliMonitorEvent):
-                data = list(event.data)
-                hexs = " ".join(f"{b:02X}" for b in data)
-                dec = dali.decode_input_event(data, event.bits)
-                if dec is None:
-                    print(f"[{event.bits:>2}b] {hexs:<12} gear/other")
-                    continue
-                g = dec.gesture or "?"
-                print(
-                    f"[{event.bits:>2}b] {hexs:<12} "
-                    f"scheme={dec.scheme.name.lower():<15} "
-                    f"addr={dec.short_address} inst#={dec.instance_number} "
-                    f"type={dec.instance_type} info=0x{(dec.event_info or 0):03X} "
-                    f"gesture={g}"
-                )
-            elif isinstance(event, DaliAnswerEvent):
-                print(f"     answer line={event.line} data={event.dali_data}")
+async def _try(session, url):
+    try:
+        ws = await session.ws_connect(url, heartbeat=30, timeout=aiohttp.ClientTimeout(total=8))
+        return ws
+    except Exception as e:  # noqa: BLE001
+        print(f"  {url}  -> {type(e).__name__}: {e}")
+        return None
+
+
+async def main(host: str, explicit: str | None) -> None:
+    base = host.removeprefix("http://").removeprefix("https://").rstrip("/")
+    async with aiohttp.ClientSession() as session:
+        ws = None
+        if explicit:
+            print(f"connecting to {explicit} ...")
+            ws = await _try(session, explicit)
+        else:
+            print("probing ws endpoints:")
+            for path in CANDIDATES:
+                url = f"ws://{base}{path}"
+                ws = await _try(session, url)
+                if ws is not None:
+                    print(f"connected: {url}\n")
+                    break
+        if ws is None:
+            print("\nno ws endpoint connected — try an explicit URL as 2nd arg, or")
+            print("check the SmartCore docs / DALI Cockpit for the websocket path.")
+            return
+
+        print("listening — press physical buttons (Ctrl-C to stop)\n")
+        async for msg in ws:
+            if msg.type != aiohttp.WSMsgType.TEXT:
+                continue
+            print("RAW:", msg.data)
+            try:
+                obj = json.loads(msg.data)
+            except Exception:  # noqa: BLE001
+                continue
+            payload = obj.get("data", obj) if isinstance(obj, dict) else {}
+            data = payload.get("data") or payload.get("dali_data") or payload.get("frame")
+            bits = payload.get("bits") or payload.get("number_of_bits")
+            if isinstance(data, list) and isinstance(bits, int):
+                dec = dali.decode_input_event([int(b) & 0xFF for b in data], bits)
+                if dec:
+                    print(f"     decoded: addr={dec.short_address} type={dec.instance_type} "
+                          f"gesture={dec.gesture or '?'}  scheme={dec.scheme.name.lower()}")
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("usage: python3 tools/monitor.py <smartcore-ip>")
+    if len(sys.argv) < 2:
+        print("usage: python3 tools/monitor.py <host> [ws-url]")
         raise SystemExit(1)
     try:
-        asyncio.run(main(sys.argv[1]))
+        asyncio.run(main(sys.argv[1], sys.argv[2] if len(sys.argv) > 2 else None))
     except KeyboardInterrupt:
         pass

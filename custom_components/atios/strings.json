@@ -28,6 +28,7 @@
         "title": "SmartCore web panel",
         "description": "Show the SmartCore web interface as a sidebar panel. Note: an http:// URL will not embed inside an https:// Home Assistant (mixed content), and the SmartCore must not send X-Frame-Options: DENY.",
         "data": {
+          "lights": "Light addresses (comma-separated DALI short addresses)",
           "panel_enabled": "Show sidebar panel",
           "panel_url": "Panel URL",
           "panel_title": "Sidebar title",

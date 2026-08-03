@@ -14,11 +14,11 @@ from __future__ import annotations
 
 from homeassistant.components.light import ATTR_BRIGHTNESS, ColorMode, LightEntity
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.device_info import DeviceInfo
+from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import AtiosConfigEntry
-from .const import DOMAIN
+from .const import CONF_LIGHTS, DEFAULT_LIGHTS, DOMAIN
 from .dali import (
     Target,
     TargetType,
@@ -39,8 +39,14 @@ async def async_setup_entry(
 ) -> None:
     hub = entry.runtime_data
     entities: list[AtiosLight] = [AtiosLight(hub, entry, Target.broadcast())]
-    # TODO: append AtiosLight(hub, entry, Target.short(a)) for each discovered
-    # short address once bus scan / options flow is in place.
+    # per-address lights from options (defaults to the confirmed A0 controller);
+    # editable in Settings -> Devices -> Atios SmartCore -> Configure.
+    addresses = entry.options.get(CONF_LIGHTS, DEFAULT_LIGHTS)
+    for addr in addresses:
+        try:
+            entities.append(AtiosLight(hub, entry, Target.short(int(addr))))
+        except (ValueError, TypeError):
+            continue
     async_add_entities(entities)
 
 
