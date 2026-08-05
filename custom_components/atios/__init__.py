@@ -20,7 +20,7 @@ from .dali import Frame, Target, goto_scene
 from .hub import AtiosHub
 from .panel import async_register_panel, async_remove_panel
 
-PLATFORMS: list[Platform] = [Platform.LIGHT, Platform.EVENT]
+PLATFORMS: list[Platform] = [Platform.LIGHT, Platform.EVENT, Platform.UPDATE]
 
 type AtiosConfigEntry = ConfigEntry[AtiosHub]
 
@@ -29,6 +29,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: AtiosConfigEntry) -> boo
     """Set up Atios SmartCore from a config entry."""
     session = async_get_clientsession(hass)
     hub = AtiosHub(entry.data[CONF_HOST], entry.data.get(CONF_LINE, DEFAULT_LINE), session)
+    await hub.async_fetch_info()  # serial + firmware version for device info / update entity
     await hub.async_start()
     entry.runtime_data = hub
 

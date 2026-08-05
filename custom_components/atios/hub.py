@@ -48,7 +48,7 @@ class AtiosHub:
     def __init__(self, host: str, line: int, session: aiohttp.ClientSession) -> None:
         self._base_url = host if host.startswith("http") else f"http://{host}"
         self._host = self._base_url.removeprefix("http://").removeprefix("https://")
-        self._ws_url = f"ws://{self._host}/"  # override once confirmed on device
+        self._ws_url = f"ws://{self._host}/ws"  # confirmed on device (DevTools)
         self._line = line
         self._session = session
 
@@ -56,10 +56,52 @@ class AtiosHub:
         self._closing = False
         self._ws_warned = False
         self._monitor_cbs: list[Callable[[MonitorFrame], None]] = []
+        self._info: dict = {}
 
     @property
     def host(self) -> str:
         return self._host
+
+    @property
+    def serial(self) -> str | None:
+        return self._info.get("serial")
+
+    @property
+    def sw_version(self) -> str | None:
+        return self._info.get("version_string")
+
+    @property
+    def info(self) -> dict:
+        return self._info
+
+    async def async_fetch_info(self) -> dict:
+        """Read GET /ota_status (serial, firmware version, update flag)."""
+        try:
+            async with self._session.get(
+                f"{self._base_url}/ota_status", timeout=aiohttp.ClientTimeout(total=5)
+            ) as resp:
+                resp.raise_for_status()
+                body = await resp.json(content_type=None)
+                if isinstance(body, dict):
+                    self._info = body
+        except Exception as err:  # noqa: BLE001
+            _LOGGER.debug("Atios %s: ota_status fetch failed: %s", self._host, err)
+        return self._info
+
+    async def async_trigger_ota(self) -> bool:
+        """Start a firmware update via POST /cmd/ota_update.
+
+        Confirmed by Atios. Note: only works if the device has no web password.
+        """
+        try:
+            async with self._session.post(
+                f"{self._base_url}/cmd/ota_update", timeout=aiohttp.ClientTimeout(total=10)
+            ) as resp:
+                resp.raise_for_status()
+                return True
+        except Exception as err:  # noqa: BLE001
+            _LOGGER.error("Atios %s: OTA trigger failed: %s", self._host, err)
+            return False
 
     # ---- lifecycle --------------------------------------------------------
 

@@ -23,7 +23,7 @@ with a fallback to the native `POST /api/dali/iface` HTTP endpoint.
 | DALI-2 event decode (`dali.py`) | ✅ 62386-103/-301, verified byte-for-byte vs python-dali on 585 frames |
 | Button events (`event.py`) | ✅ buttons auto-appear on first press with named gestures (Device scheme); Device/Instance scheme emits raw event_info |
 | Zeroconf discovery | 🟨 zeroconf flow built (matches Lunatone-emulation `type=dali-2-*` + name `atios*`/`smartcore*`); confirm the SmartCore's actual mDNS/TXT on device and tighten the manifest |
-| Firmware `update` entity | ⬜ deferred until an Atios version/OTA endpoint is known |
+| Firmware `update` entity | ✅ installed version from `/ota_status` (2.7.5, serial exposed); latest-version source still needed for update *notifications* |
 | Web-UI iframe panel | ✅ sidebar panel via options flow; probes for X-Frame-Options / CSP / mixed-content and warns |
 
 ## Install (HACS custom repo)
@@ -54,3 +54,9 @@ To show the SmartCore web UI in the sidebar: **Settings → Devices & Services �
    three match entries in `manifest.json`, adjust them; the `async_step_zeroconf`
    handler already tolerates missing/renamed TXT keys and falls back to the host.
 
+## Bounty deliverables (Atios) — mapping
+
+1. Discover in network → 🟨 zeroconf flow (verify service/TXT on device, step 5)
+2. Show web interface in HA → ✅ iframe sidebar panel (Settings → Devices → Atios → Configure)
+3. Firmware update notifications → 🟨 installed version done via /ota_status; latest-version source pending
+4. Send/receive custom DALI packets → ✅ `send_dali_frame` + monitor stream

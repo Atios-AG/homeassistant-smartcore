@@ -66,6 +66,8 @@ class AtiosLight(LightEntity):
             manufacturer="Atios",
             model="SmartCore",
             name=f"SmartCore ({hub.host})",
+            serial_number=hub.serial,
+            sw_version=hub.sw_version,
         )
         if target.type is TargetType.BROADCAST:
             self._attr_name = "All lights"

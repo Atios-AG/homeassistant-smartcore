@@ -44,7 +44,7 @@ async def _try(session, url):
 
 
 async def main(host: str, explicit: str | None) -> None:
-    base = host.removeprefix("http://").removeprefix("https://").rstrip("/")
+    base = host.replace("http://", "").replace("https://", "").rstrip("/")
     async with aiohttp.ClientSession() as session:
         ws = None
         if explicit:
