@@ -3,11 +3,11 @@
   "name": "Atios SmartCore",
   "codeowners": [],
   "config_flow": true,
-  "documentation": "https://github.com/idmitri/atios-smartcore-ha",
+  "documentation": "https://github.com/AtiosAG/homeassistant-smartcore",
   "iot_class": "local_push",
-  "issue_tracker": "https://github.com/idmitri/atios-smartcore-ha/issues",
+  "issue_tracker": "https://github.com/AtiosAG/homeassistant-smartcore/issues",
   "requirements": [],
-  "version": "0.5.1",
+  "version": "0.7.1",
   "zeroconf": [
     {
       "type": "_http._tcp.local.",

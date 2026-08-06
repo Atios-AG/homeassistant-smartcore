@@ -24,6 +24,7 @@ from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
 from .const import (
     CONF_LIGHTS,
     CONF_LINE,
+    CONF_MODE,
     CONF_PANEL,
     CONF_PANEL_ADMIN,
     CONF_PANEL_ICON,
@@ -31,11 +32,14 @@ from .const import (
     CONF_PANEL_URL,
     DEFAULT_LIGHTS,
     DEFAULT_LINE,
+    DEFAULT_MODE,
     DEFAULT_PANEL,
     DEFAULT_PANEL_ADMIN,
     DEFAULT_PANEL_ICON,
     DEFAULT_PANEL_TITLE,
     DOMAIN,
+    MODE_ADVANCED,
+    MODE_BASIC,
 )
 from .hub import AtiosHub
 
@@ -160,6 +164,9 @@ class AtiosOptionsFlow(OptionsFlow):
         )
         schema = vol.Schema(
             {
+                vol.Optional(
+                    CONF_MODE, default=opts.get(CONF_MODE, DEFAULT_MODE)
+                ): vol.In([MODE_BASIC, MODE_ADVANCED]),
                 vol.Optional(CONF_LIGHTS, default=lights_default): str,
                 vol.Optional(
                     CONF_PANEL, default=opts.get(CONF_PANEL, DEFAULT_PANEL)

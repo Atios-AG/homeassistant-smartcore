@@ -3,8 +3,8 @@
     "flow_title": "{name}",
     "step": {
       "user": {
-        "title": "Atios SmartCore",
-        "description": "Enter the SmartCore IP address or hostname.",
+        "title": "Atios SmartCore (advanced)",
+        "description": "This sets up direct raw-DALI access to the SmartCore. For everyday light control, most users should instead pair the SmartCore via Matter (DALI Configurator \u2192 Accessory Manager \u2192 Matter). Use this integration for raw DALI, scenes, the bus monitor, firmware updates and the web-UI panel. Enter the SmartCore IP address or hostname.",
         "data": {
           "host": "Host",
           "line": "DALI line"
@@ -25,9 +25,10 @@
   "options": {
     "step": {
       "init": {
-        "title": "SmartCore web panel",
-        "description": "Show the SmartCore web interface as a sidebar panel. Note: an http:// URL will not embed inside an https:// Home Assistant (mixed content), and the SmartCore must not send X-Frame-Options: DENY.",
+        "title": "Atios SmartCore options",
+        "description": "Mode: 'basic' exposes named per-address lights and firmware only \u2014 use the Matter pairing for the full curated model. 'advanced' also exposes the bus-wide broadcast light and other raw-DALI features. The web panel shows the SmartCore UI in the sidebar; note an http:// URL will not embed inside an https:// Home Assistant, and the SmartCore must not send X-Frame-Options: DENY.",
         "data": {
+          "mode": "Mode (basic / advanced)",
           "lights": "Light addresses (comma-separated DALI short addresses)",
           "panel_enabled": "Show sidebar panel",
           "panel_url": "Panel URL",

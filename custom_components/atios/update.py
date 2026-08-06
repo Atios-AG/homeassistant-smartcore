@@ -5,7 +5,7 @@ also exposes ``update_status`` and checks Atios' cloud (cloud.atios.ch) for the
 latest build; a local "latest version" source isn't confirmed yet, so until
 then we report installed == latest (shows "up to date") and surface the raw
 ``update_status`` as an attribute. Wiring a real latest-version source (an Atios
-version endpoint or their GitHub releases) is the remaining half of bounty #3.
+version endpoint or their GitHub releases) can be wired in later.
 
 No install() is implemented: triggering an OTA blindly is unsafe, so firmware
 updates stay a notification-only entity until Atios confirm the trigger API.
@@ -13,13 +13,18 @@ updates stay a notification-only entity until Atios confirm the trigger API.
 
 from __future__ import annotations
 
+from datetime import timedelta
+
 from homeassistant.components.update import UpdateEntity, UpdateEntityFeature
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import AtiosConfigEntry
 from .const import DOMAIN
+
+SCAN_INTERVAL = timedelta(minutes=5)
 
 
 async def async_setup_entry(
@@ -40,6 +45,8 @@ class AtiosFirmwareUpdate(UpdateEntity):
 
     def __init__(self, hub, entry: AtiosConfigEntry) -> None:
         self._hub = hub
+        self._entry = entry
+        self._known_version = hub.sw_version
         self._attr_unique_id = f"{entry.unique_id}_firmware"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, entry.unique_id)},
@@ -81,3 +88,13 @@ class AtiosFirmwareUpdate(UpdateEntity):
 
     async def async_update(self) -> None:
         await self._hub.async_fetch_info()
+        # If the firmware changed (e.g. updated from the SmartCore web UI),
+        # push the new version into the device registry so the device card's
+        # "Firmware" field updates without reloading the integration.
+        current = self._hub.sw_version
+        if current and current != self._known_version:
+            self._known_version = current
+            registry = dr.async_get(self.hass)
+            device = registry.async_get_device(identifiers={(DOMAIN, self._entry.unique_id)})
+            if device:
+                registry.async_update_device(device.id, sw_version=current)

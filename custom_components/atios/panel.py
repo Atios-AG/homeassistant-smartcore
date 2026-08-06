@@ -119,7 +119,7 @@ async def _probe_embeddable(hass: HomeAssistant, url: str) -> None:
         _LOGGER.warning(
             "Atios: SmartCore sends 'X-Frame-Options: %s', so the browser will "
             "refuse to embed its web UI in HA. Ask Atios to drop/relax this "
-            "header (it's on their bounty list) or front the UI with a proxy "
+            "header, or front the UI with a proxy "
             "that strips it.",
             xfo,
         )

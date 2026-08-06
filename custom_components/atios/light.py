@@ -18,7 +18,7 @@ from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import AtiosConfigEntry
-from .const import CONF_LIGHTS, DEFAULT_LIGHTS, DOMAIN
+from .const import CONF_LIGHTS, CONF_MODE, DEFAULT_LIGHTS, DEFAULT_MODE, DOMAIN, MODE_ADVANCED
 from .dali import (
     Target,
     TargetType,
@@ -38,7 +38,12 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     hub = entry.runtime_data
-    entities: list[AtiosLight] = [AtiosLight(hub, entry, Target.broadcast())]
+    advanced = entry.options.get(CONF_MODE, DEFAULT_MODE) == MODE_ADVANCED
+
+    entities: list[AtiosLight] = []
+    # Broadcast is a low-level, bus-wide control -> advanced mode only.
+    if advanced:
+        entities.append(AtiosLight(hub, entry, Target.broadcast()))
     # per-address lights from options (defaults to the confirmed A0 controller);
     # editable in Settings -> Devices -> Atios SmartCore -> Configure.
     addresses = entry.options.get(CONF_LIGHTS, DEFAULT_LIGHTS)

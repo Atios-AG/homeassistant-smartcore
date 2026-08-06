@@ -1,21 +1,44 @@
 # Atios SmartCore — Home Assistant integration
 
-Local-push integration for the [Atios SmartCore](https://atios.ch/products/smartcore)
-DALI-2 controller. Talks **raw DALI** over the SmartCore's emulated Lunatone
-websocket (`daliFrame` / `daliAnswer` / `daliMonitor`) using the
-[`lunatone-dali2-iot`](https://pypi.org/project/lunatone-dali2-iot/) library,
-with a fallback to the native `POST /api/dali/iface` HTTP endpoint.
+Local, push-based integration for the [Atios SmartCore](https://atios.ch/products/smartcore)
+DALI-2 controller. It talks to the SmartCore directly over your LAN — native
+`aiohttp`, no cloud, no external Python dependencies: raw DALI frames via the
+HTTP `POST /api/dali/iface` endpoint, firmware status via `/ota_status`, and a
+`ws://<host>/ws` monitor stream for DALI-2 input events. Confirmed on SmartCore
+firmware 2.7.5.
 
-> The SmartCore does **not** expose the Lunatone REST `/devices` API, so the
-> official `lunatone` core integration cannot drive it. This integration works
-> at the DALI frame level instead.
+## Basic vs. advanced — which path should I use?
+
+The SmartCore already holds a full device model internally (named devices,
+groups, scenes, relative dimming, relay outputs, binary inputs) and exposes it
+over **Matter**. For everyday use that is the recommended path, and it does
+**not** require this integration.
+
+**Basic (recommended for most users):**
+
+1. Scan the DALI bus in the SmartCore **DALI Configurator**.
+2. Arrange devices, groups and scenes in the **Accessory Manager**.
+3. Pair the SmartCore into Home Assistant via **Matter**.
+
+Home Assistant then shows the curated model natively — turning a group on keeps
+its member addresses in sync, relative dimming works, and the relay outputs and
+binary inputs are available, because all of that logic stays in the SmartCore
+firmware where it belongs.
+
+**Advanced (this integration):** direct low-level access for power users — send
+and receive raw DALI packets, recall scenes, watch the bus monitor, expose
+per-address lights, the firmware update entity, and the SmartCore web UI as a
+sidebar panel. Use it when you want raw DALI control or would rather not run
+Matter. It works standalone and also sits happily alongside a Matter-paired
+SmartCore. Several of its entities and services are low-level and are described
+as *advanced* below.
 
 ## Status
 
 | Piece | State |
 |---|---|
 | DALI frame encode/decode (`dali.py`) | ✅ verified against reference frames (`FF 10` goto-scene, `01 91` query-gear-present) |
-| WS transport + reconnect + HTTP fallback (`hub.py`) | ✅ written against the documented library API; needs a device to confirm the emulated stack behaves identically |
+| Transport (`hub.py`) | ✅ native aiohttp; HTTP `/api/dali/iface` confirmed on device, `ws://<host>/ws` monitor connects (101) |
 | Broadcast light + brightness/on/off | ✅ first cut |
 | Per-address lights | ✅ configurable via options flow (confirmed on device: LED controller at A0) |
 | QUERY status read | ✅ HTTP answer shape confirmed on device (`{success,bus_busy,collision_detected,data}`) |
@@ -32,6 +55,20 @@ Add this repo as a custom repository (type: Integration), install, restart,
 then **Settings → Devices & Services → Add → Atios SmartCore** and enter the IP.
 
 To show the SmartCore web UI in the sidebar: **Settings → Devices & Services → Atios SmartCore → Configure**. If the panel is blank, check the HA log — the integration probes for `X-Frame-Options`/CSP/mixed-content and logs the exact reason.
+
+### Basic / Advanced mode
+
+**Settings → Devices & Services → Atios SmartCore → Configure** has a **Mode**
+switch:
+
+- **Basic** (default) — named per-address lights and the firmware update entity
+  only. Pair the SmartCore via Matter for the full curated model (groups,
+  scenes, relays, inputs).
+- **Advanced** — additionally exposes the bus-wide **All lights** (broadcast)
+  entity and other raw-DALI features. The `atios.send_dali_frame` /
+  `atios.recall_scene` services are available in either mode for power users.
+
+Changing the mode reloads the integration and re-creates entities accordingly.
 
 ## Calibration steps once the device is in hand
 
@@ -53,10 +90,3 @@ To show the SmartCore web UI in the sidebar: **Settings → Devices & Services �
    (`uid`, `serial`, `device`, `manufacturer`, `type`). If it differs from the
    three match entries in `manifest.json`, adjust them; the `async_step_zeroconf`
    handler already tolerates missing/renamed TXT keys and falls back to the host.
-
-## Bounty deliverables (Atios) — mapping
-
-1. Discover in network → 🟨 zeroconf flow (verify service/TXT on device, step 5)
-2. Show web interface in HA → ✅ iframe sidebar panel (Settings → Devices → Atios → Configure)
-3. Firmware update notifications → 🟨 installed version done via /ota_status; latest-version source pending
-4. Send/receive custom DALI packets → ✅ `send_dali_frame` + monitor stream
