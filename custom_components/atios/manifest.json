@@ -7,7 +7,7 @@
   "iot_class": "local_push",
   "issue_tracker": "https://github.com/AtiosAG/homeassistant-smartcore/issues",
   "requirements": [],
-  "version": "0.7.1",
+  "version": "0.8.0",
   "zeroconf": [
     {
       "type": "_http._tcp.local.",

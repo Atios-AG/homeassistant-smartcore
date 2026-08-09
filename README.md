@@ -56,6 +56,13 @@ then **Settings → Devices & Services → Add → Atios SmartCore** and enter t
 
 To show the SmartCore web UI in the sidebar: **Settings → Devices & Services → Atios SmartCore → Configure**. If the panel is blank, check the HA log — the integration probes for `X-Frame-Options`/CSP/mixed-content and logs the exact reason.
 
+### Branding
+
+Brand images ship inside the integration (`custom_components/atios/brand/`) and
+are served by Home Assistant's local brands proxy (HA 2026.3+), so the SmartCore
+icon and logo appear in the UI with no CDN round-trip and no separate
+`home-assistant/brands` submission. Artwork provided by Atios AG.
+
 ### Basic / Advanced mode
 
 **Settings → Devices & Services → Atios SmartCore → Configure** has a **Mode**
