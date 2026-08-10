@@ -10,14 +10,18 @@ firmware 2.7.5.
 ## Basic vs. advanced — which path should I use?
 
 The SmartCore already holds a full device model internally (named devices,
-groups, scenes, relative dimming, relay outputs, binary inputs) and exposes it
+groups, relative dimming, relay outputs, binary inputs) and exposes it
 over **Matter**. For everyday use that is the recommended path, and it does
 **not** require this integration.
 
 **Basic (recommended for most users):**
 
 1. Scan the DALI bus in the SmartCore **DALI Configurator**.
-2. Arrange devices, groups and scenes in the **Accessory Manager**.
+2. Build your Matter devices in the **Accessory Manager** — you combine the
+   inputs and outputs the way they are actually wired, and each combination
+   becomes one Matter accessory. A push-button input plus a relay output becomes
+   a Matter generic switch; a DALI-2 push button plus a DALI light (single
+   address or group) becomes a Matter dimmable light.
 3. Pair the SmartCore into Home Assistant via **Matter**.
 
 Home Assistant then shows the curated model natively — turning a group on keeps
@@ -25,13 +29,22 @@ its member addresses in sync, relative dimming works, and the relay outputs and
 binary inputs are available, because all of that logic stays in the SmartCore
 firmware where it belongs.
 
+**Scenes are not configured in the SmartCore.** You create them in whichever
+Matter app you use — Apple Home, Home Assistant, Google Home — on top of the
+accessories the SmartCore exposes. *DALI scenes* are a completely different
+thing (scene levels stored in the gear itself, recalled over the bus); firmware
+support for those is planned, and until then you can drive them today with the
+advanced path below by sending the raw DALI packets yourself.
+
 **Advanced (this integration):** direct low-level access for power users — send
-and receive raw DALI packets, recall scenes, watch the bus monitor, expose
-per-address lights, the firmware update entity, and the SmartCore web UI as a
-sidebar panel. Use it when you want raw DALI control or would rather not run
-Matter. It works standalone and also sits happily alongside a Matter-paired
-SmartCore. Several of its entities and services are low-level and are described
-as *advanced* below.
+and receive raw DALI packets, recall scenes, watch the bus monitor, the firmware
+update entity, and the SmartCore web UI as a sidebar panel. It also lets you
+reach devices the SmartCore does not model yet — DALI-2 sensors and proprietary
+DALI devices can be driven from Home Assistant through raw frames even while the
+firmware has no native support for them. Use it when you want raw DALI control
+or would rather not run Matter. It works standalone and also sits happily
+alongside a Matter-paired SmartCore. Several of its entities and services are
+low-level and are described as *advanced* below.
 
 ## Status
 
@@ -70,30 +83,14 @@ switch:
 
 - **Basic** (default) — named per-address lights and the firmware update entity
   only. Pair the SmartCore via Matter for the full curated model (groups,
-  scenes, relays, inputs).
+  relays, inputs).
 - **Advanced** — additionally exposes the bus-wide **All lights** (broadcast)
   entity and other raw-DALI features. The `atios.send_dali_frame` /
   `atios.recall_scene` services are available in either mode for power users.
 
 Changing the mode reloads the integration and re-creates entities accordingly.
 
-## Calibration steps once the device is in hand
+## Contributing
 
-1. **Confirm the WS endpoint** — start HA with debug logging for `custom_components.atios`;
-   confirm `websocket connected`. If not, the native HTTP path still drives lights.
-2. **Verify QUERY answers** — call `atios.send_dali_frame` with `data: [1, 160]`
-   (`QUERY ACTUAL LEVEL` to address 0), `wait_for_answer: true`, and check the
-   returned byte matches the fixture level.
-3. **Confirm buttons** — run `python3 tools/monitor.py <smartcore-ip>` and press
-   each Merten push (single / double / long). Device-scheme buttons decode
-   directly to named gestures; if any print `gesture=?` (Device/Instance
-   scheme), note the `info=` value and confirm it against `PUSHBUTTON_EVENTS`.
-   In HA, each button auto-appears as an `event` entity on first press.
-4. **Wire real lights** — replace the broadcast-only list in `light.py` with the
-   discovered short addresses (or add an options flow).
-5. **mDNS** — the zeroconf flow is already wired. Confirm the SmartCore's real
-   advertisement with `avahi-browse -rt _http._tcp.local` (also try `_dali._tcp`,
-   `_atios._tcp`). Check the service type, the instance name, and the TXT keys
-   (`uid`, `serial`, `device`, `manufacturer`, `type`). If it differs from the
-   three match entries in `manifest.json`, adjust them; the `async_step_zeroconf`
-   handler already tolerates missing/renamed TXT keys and falls back to the host.
+Developer notes and the hardware bring-up checklist live in
+[CONTRIBUTING.md](CONTRIBUTING.md).
