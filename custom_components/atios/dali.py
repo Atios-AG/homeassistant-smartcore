@@ -34,6 +34,7 @@ OP_DOWN = 0x02
 OP_STEP_UP = 0x03
 OP_STEP_DOWN = 0x04
 OP_RECALL_MAX = 0x05
+OP_GOTO_LAST_ACTIVE = 0x0A  # GO TO LAST ACTIVE LEVEL (IEC 62386-102)
 OP_RECALL_MIN = 0x06
 OP_GOTO_SCENE_BASE = 0x10  # 0x10..0x1F -> scenes 0..15
 OP_QUERY_STATUS = 0x90
@@ -147,6 +148,11 @@ def off(target: Target) -> Frame:
 
 def recall_max(target: Target) -> Frame:
     return command(target, OP_RECALL_MAX)
+
+
+def goto_last_active(target: Target) -> Frame:
+    """Turn on restoring the level the gear had before it was switched off."""
+    return command(target, OP_GOTO_LAST_ACTIVE)
 
 
 def goto_scene(target: Target, scene: int) -> Frame:

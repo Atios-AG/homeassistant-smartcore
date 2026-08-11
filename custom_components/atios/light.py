@@ -27,7 +27,7 @@ from .dali import (
     level,
     off,
     query_actual_level,
-    recall_max,
+    goto_last_active,
 )
 from .hub import AtiosHub
 
@@ -91,8 +91,13 @@ class AtiosLight(LightEntity):
             await self._hub.send_frame(level(self._target, dali))
             self._attr_brightness = kwargs[ATTR_BRIGHTNESS]
         else:
-            await self._hub.send_frame(recall_max(self._target))
-            self._attr_brightness = 255
+            # Plain "on": restore the level the gear had before it was switched
+            # off (GO TO LAST ACTIVE LEVEL), rather than forcing full brightness.
+            await self._hub.send_frame(goto_last_active(self._target))
+            # Actual level is read back by async_update for single addresses;
+            # optimistic only for broadcast/group.
+            if self._target.type is not TargetType.SHORT and self._attr_brightness is None:
+                self._attr_brightness = 255
         self._attr_is_on = True
         self.async_write_ha_state()
 
