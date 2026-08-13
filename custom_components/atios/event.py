@@ -1,7 +1,9 @@
 """Event platform for Atios SmartCore DALI-2 input devices (push buttons).
 
-Buttons auto-appear as ``event`` entities the first time they are pressed: the
-monitor stream is decoded (IEC 62386-103 / -301), and each unique
+Push-button instances found in the SmartCore's NVRAM device model are created
+upfront with their configured device names. Buttons not in the model still
+auto-appear as ``event`` entities the first time they are pressed: the monitor
+stream is decoded (IEC 62386-103 / -301), and each unique
 (short address, instance) signature gets its own entity with named gestures
 (short_press, double_press, long_press_start, ...). Every decoded frame is also
 re-emitted on the HA event bus as ``atios_dali_event`` for hand-built
@@ -23,11 +25,10 @@ from . import AtiosConfigEntry
 from .const import DOMAIN, EVENT_DALI
 from .dali import (
     PUSHBUTTON_EVENTS,
-    EventScheme,
-    InputEvent,
     decode_input_event,
 )
 from .hub import MonitorFrame
+from .nvram import INSTANCE_PUSHBUTTON
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -42,6 +43,24 @@ async def async_setup_entry(
 ) -> None:
     hub = entry.runtime_data
     manager = _ButtonManager(hass, entry, hub, async_add_entities)
+
+    # pre-create buttons known from the NVRAM device model
+    precreated: list[AtiosButtonEvent] = []
+    for dev in hub.input_devices:
+        for inst in dev.instances:
+            if inst.type != INSTANCE_PUSHBUTTON:
+                continue
+            sig = inst.expected_signature(dev.address)
+            if sig is None or sig in manager.buttons:
+                continue
+            entity = AtiosButtonEvent(
+                entry, hub, signature=sig, label=f"{dev.name} button {inst.number}"
+            )
+            manager.buttons[sig] = entity
+            precreated.append(entity)
+    if precreated:
+        async_add_entities(precreated)
+
     entry.async_on_unload(hub.add_monitor_listener(manager.on_monitor))
 
 
@@ -53,7 +72,7 @@ class _ButtonManager:
         self._entry = entry
         self._hub = hub
         self._add = async_add_entities
-        self._buttons: dict[str, AtiosButtonEvent] = {}
+        self.buttons: dict[str, AtiosButtonEvent] = {}
 
     @callback
     def on_monitor(self, event: MonitorFrame) -> None:
@@ -82,10 +101,17 @@ class _ButtonManager:
         if gesture is None:
             return  # not a (recognised) push-button gesture -> bus event only
 
-        entity = self._buttons.get(decoded.signature)
+        entity = self.buttons.get(decoded.signature)
         if entity is None:
-            entity = AtiosButtonEvent(self._entry, self._hub, decoded)
-            self._buttons[decoded.signature] = entity
+            addr = decoded.short_address
+            inst = decoded.instance_number
+            label = f"Button {addr}" if addr is not None else "Button"
+            if inst is not None:
+                label += f".{inst}"
+            entity = AtiosButtonEvent(
+                self._entry, self._hub, signature=decoded.signature, label=label
+            )
+            self.buttons[decoded.signature] = entity
             self._add([entity])
             # first frame arrives before the entity is added to hass; replay it
             entity.queue_first(gesture, payload)
@@ -94,21 +120,18 @@ class _ButtonManager:
 
 
 class AtiosButtonEvent(EventEntity):
-    """One DALI-2 push button, discovered from the bus."""
+    """One DALI-2 push button, from the NVRAM model or discovered on the bus."""
 
     _attr_has_entity_name = True
     _attr_event_types = BUTTON_EVENT_TYPES
     _attr_should_poll = False
 
-    def __init__(self, entry: AtiosConfigEntry, hub, ev: InputEvent) -> None:
-        self._signature = ev.signature
-        addr = ev.short_address
-        inst = ev.instance_number
-        label = f"Button {addr}" if addr is not None else "Button"
-        if inst is not None:
-            label += f".{inst}"
+    def __init__(
+        self, entry: AtiosConfigEntry, hub, *, signature: str, label: str
+    ) -> None:
+        self._signature = signature
         self._attr_name = label
-        self._attr_unique_id = f"{entry.unique_id}_btn_{ev.signature}"
+        self._attr_unique_id = f"{entry.unique_id}_btn_{signature}"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, entry.unique_id)},
         )

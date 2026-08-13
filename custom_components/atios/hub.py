@@ -57,6 +57,8 @@ class AtiosHub:
         self._ws_warned = False
         self._monitor_cbs: list[Callable[[MonitorFrame], None]] = []
         self._info: dict = {}
+        self.control_devices: list = []  # nvram.ControlDevice, set at setup
+        self.input_devices: list = []  # nvram.InputDevice, set at setup
 
     @property
     def host(self) -> str:
@@ -87,6 +89,41 @@ class AtiosHub:
         except Exception as err:  # noqa: BLE001
             _LOGGER.debug("Atios %s: ota_status fetch failed: %s", self._host, err)
         return self._info
+
+    async def async_fetch_nvm_section(self, section: str) -> list[dict] | None:
+        """Read one NVRAM section via GET /api/dali/nvm, following pagination.
+
+        The web configurator pages with limit=4; we mirror that exactly since
+        it is the only request shape confirmed against the firmware. Returns
+        None when the endpoint is unreachable (older firmware), so callers can
+        fall back.
+        """
+        devices: list[dict] = []
+        offset = 0
+        for _ in range(32):  # 32 * 4 = 128 > max 64 addresses + groups
+            url = (
+                f"{self._base_url}/api/dali/nvm"
+                f"?section={section}&offset={offset}&limit=4"
+            )
+            try:
+                async with self._session.get(
+                    url, timeout=aiohttp.ClientTimeout(total=10)
+                ) as resp:
+                    resp.raise_for_status()
+                    body = await resp.json(content_type=None)
+            except Exception as err:  # noqa: BLE001
+                _LOGGER.debug(
+                    "Atios %s: nvm fetch %s failed: %s", self._host, section, err
+                )
+                return None if not devices else devices
+            if not isinstance(body, dict) or not body.get("success"):
+                return None if not devices else devices
+            devices.extend((body.get("data") or {}).get(section) or [])
+            pagination = body.get("pagination") or {}
+            if not pagination.get("has_more"):
+                break
+            offset += pagination.get("limit", 4)
+        return devices
 
     async def async_trigger_ota(self) -> bool:
         """Start a firmware update via POST /cmd/ota_update.

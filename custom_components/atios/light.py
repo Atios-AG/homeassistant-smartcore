@@ -1,11 +1,13 @@
 """Light platform for Atios SmartCore (raw DALI control gear).
 
-First cut exposes a single broadcast light so control is verifiable the moment
-the device is connected. Per-address and per-group lights are created from an
-options list once the bus is scanned/known — the plumbing is here; wire the
-address list through an options flow or a static list in a follow-up.
+Lights are created from the device model stored in the SmartCore's NVRAM (the
+same list the DALI Configurator shows): every configured short address and
+group becomes a named light, plus the bus-wide broadcast light. If the NVRAM
+endpoint is unavailable (older firmware) the platform falls back to the legacy
+per-address list from the options.
 
-Brightness is sent as a DAPC level; on/off use RECALL MAX / OFF. State is read
+Brightness is sent as a DAPC level; plain on/off use GO TO LAST ACTIVE LEVEL /
+OFF. State is read
 back with QUERY ACTUAL LEVEL where the target is a single address (broadcast
 and group queries collide on the bus, so those stay optimistic).
 """
@@ -18,7 +20,7 @@ from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import AtiosConfigEntry
-from .const import CONF_LIGHTS, CONF_MODE, DEFAULT_LIGHTS, DEFAULT_MODE, DOMAIN, MODE_ADVANCED
+from .const import CONF_LIGHTS, DOMAIN
 from .dali import (
     Target,
     TargetType,
@@ -38,20 +40,19 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     hub = entry.runtime_data
-    advanced = entry.options.get(CONF_MODE, DEFAULT_MODE) == MODE_ADVANCED
 
-    entities: list[AtiosLight] = []
-    # Broadcast is a low-level, bus-wide control -> advanced mode only.
-    if advanced:
-        entities.append(AtiosLight(hub, entry, Target.broadcast()))
-    # per-address lights from options (defaults to the confirmed A0 controller);
-    # editable in Settings -> Devices -> Atios SmartCore -> Configure.
-    addresses = entry.options.get(CONF_LIGHTS, DEFAULT_LIGHTS)
-    for addr in addresses:
-        try:
-            entities.append(AtiosLight(hub, entry, Target.short(int(addr))))
-        except (ValueError, TypeError):
-            continue
+    entities: list[AtiosLight] = [AtiosLight(hub, entry, Target.broadcast())]
+    if hub.control_devices:
+        # named lights from the NVRAM device model (groups + short addresses)
+        for dev in hub.control_devices:
+            entities.append(AtiosLight(hub, entry, dev.target, name=dev.name))
+    else:
+        # legacy fallback: per-address list from the options
+        for addr in entry.options.get(CONF_LIGHTS, []):
+            try:
+                entities.append(AtiosLight(hub, entry, Target.short(int(addr))))
+            except (ValueError, TypeError):
+                continue
     async_add_entities(entities)
 
 
@@ -62,7 +63,13 @@ class AtiosLight(LightEntity):
     _attr_supported_color_modes = {ColorMode.BRIGHTNESS}
     _attr_color_mode = ColorMode.BRIGHTNESS
 
-    def __init__(self, hub: AtiosHub, entry: AtiosConfigEntry, target: Target) -> None:
+    def __init__(
+        self,
+        hub: AtiosHub,
+        entry: AtiosConfigEntry,
+        target: Target,
+        name: str | None = None,
+    ) -> None:
         self._hub = hub
         self._target = target
         self._attr_unique_id = f"{entry.unique_id}_{target.unique_suffix}"
@@ -74,7 +81,9 @@ class AtiosLight(LightEntity):
             serial_number=hub.serial,
             sw_version=hub.sw_version,
         )
-        if target.type is TargetType.BROADCAST:
+        if name:
+            self._attr_name = name
+        elif target.type is TargetType.BROADCAST:
             self._attr_name = "All lights"
         elif target.type is TargetType.GROUP:
             self._attr_name = f"Group {target.number}"

@@ -18,9 +18,16 @@ from .const import (
 )
 from .dali import Frame, Target, goto_scene
 from .hub import AtiosHub
+from .nvram import parse_control_devices, parse_input_devices
 from .panel import async_register_panel, async_remove_panel
 
-PLATFORMS: list[Platform] = [Platform.LIGHT, Platform.EVENT, Platform.UPDATE]
+PLATFORMS: list[Platform] = [
+    Platform.BINARY_SENSOR,
+    Platform.EVENT,
+    Platform.LIGHT,
+    Platform.SENSOR,
+    Platform.UPDATE,
+]
 
 type AtiosConfigEntry = ConfigEntry[AtiosHub]
 
@@ -30,6 +37,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: AtiosConfigEntry) -> boo
     session = async_get_clientsession(hass)
     hub = AtiosHub(entry.data[CONF_HOST], entry.data.get(CONF_LINE, DEFAULT_LINE), session)
     await hub.async_fetch_info()  # serial + firmware version for device info / update entity
+
+    # Read the configured device model from NVRAM (same endpoint the web
+    # configurator uses). On failure the platforms fall back to their legacy
+    # behaviour (options address list / discover-on-first-event).
+    raw_control = await hub.async_fetch_nvm_section("control_devices")
+    raw_inputs = await hub.async_fetch_nvm_section("input_devices")
+    if raw_control is not None:
+        hub.control_devices = parse_control_devices(raw_control)
+    if raw_inputs is not None:
+        hub.input_devices = parse_input_devices(raw_inputs)
+
     await hub.async_start()
     entry.runtime_data = hub
 

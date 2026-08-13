@@ -15,15 +15,10 @@ CONF_PANEL_TITLE = "panel_title"
 CONF_PANEL_ICON = "panel_icon"
 CONF_PANEL_ADMIN = "panel_require_admin"
 
-# options (mode)
-CONF_MODE = "mode"
-MODE_BASIC = "basic"
-MODE_ADVANCED = "advanced"
-DEFAULT_MODE = MODE_BASIC
-
-# options (lights)
-CONF_LIGHTS = "lights"  # list[int] of DALI short addresses to expose as lights
-DEFAULT_LIGHTS: list[int] = [0]  # confirmed on device: LED controller sits at A0
+# legacy option: list[int] of DALI short addresses to expose as lights.
+# Superseded by the NVRAM device model; still read as a fallback when the
+# nvm endpoint is unavailable (older firmware).
+CONF_LIGHTS = "lights"
 
 DEFAULT_LINE = 0
 DEFAULT_PANEL = True

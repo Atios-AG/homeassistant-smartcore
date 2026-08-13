@@ -1,0 +1,1326 @@
+{
+  "success": true,
+  "data": {
+    "control_devices": [
+      {
+        "is_group": true,
+        "name": "Group 1",
+        "address": 129,
+        "physical_minimum": 1,
+        "fade_time": 2,
+        "fade_rate": 2,
+        "ext_fade_time_multiplier": 0,
+        "ext_fade_time_base": 0,
+        "min_level": 1,
+        "max_level": 254,
+        "dimming_curve": 0,
+        "power_on_level": 1,
+        "system_failure_level": 0,
+        "gear_groups": [],
+        "device_types": [],
+        "device_type_selected": 6,
+        "dt6_features": 0,
+        "color_type_features": 2,
+        "color_status": 32,
+        "color_temperature_warmest": 454,
+        "color_temperature_coolest": 153,
+        "color_temperature_physical_warmest": 500,
+        "color_temperature_physical_coolest": 142,
+        "identification_number": [],
+        "gtin": [],
+        "firmware_version": [],
+        "hardware_version": [],
+        "gear_scenes": [
+          {
+            "number": 0,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 1,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 2,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 3,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 4,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 5,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 6,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 7,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 8,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 9,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 10,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 11,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 12,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 13,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 14,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 15,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          }
+        ],
+        "power_on_color": {
+          "color_type": 0
+        },
+        "system_failure_color": {
+          "color_type": 0
+        }
+      },
+      {
+        "is_group": false,
+        "name": "Short 0",
+        "address": 0,
+        "physical_minimum": 1,
+        "fade_time": 2,
+        "fade_rate": 2,
+        "ext_fade_time_multiplier": 0,
+        "ext_fade_time_base": 0,
+        "min_level": 1,
+        "max_level": 254,
+        "dimming_curve": 0,
+        "power_on_level": 1,
+        "system_failure_level": 0,
+        "gear_groups": [
+          1
+        ],
+        "device_types": [
+          6,
+          8
+        ],
+        "device_type_selected": 8,
+        "dt6_features": 0,
+        "color_type_features": 109,
+        "color_status": 208,
+        "color_temperature_warmest": 454,
+        "color_temperature_coolest": 153,
+        "color_temperature_physical_warmest": 500,
+        "color_temperature_physical_coolest": 142,
+        "identification_number": [],
+        "gtin": [],
+        "firmware_version": [],
+        "hardware_version": [],
+        "gear_scenes": [
+          {
+            "number": 0,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 1,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 2,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 3,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 4,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 5,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 6,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 7,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 8,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 9,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 10,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 11,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 12,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 13,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 14,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 15,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          }
+        ],
+        "power_on_color": {
+          "color_type": 0
+        },
+        "system_failure_color": {
+          "color_type": 0
+        }
+      },
+      {
+        "is_group": false,
+        "name": "Control 1",
+        "address": 1,
+        "physical_minimum": 1,
+        "fade_time": 2,
+        "fade_rate": 2,
+        "ext_fade_time_multiplier": 0,
+        "ext_fade_time_base": 0,
+        "min_level": 1,
+        "max_level": 254,
+        "dimming_curve": 0,
+        "power_on_level": 1,
+        "system_failure_level": 0,
+        "gear_groups": [
+          1
+        ],
+        "device_types": [
+          6,
+          8
+        ],
+        "device_type_selected": 8,
+        "dt6_features": 0,
+        "color_type_features": 2,
+        "color_status": 32,
+        "color_temperature_warmest": 454,
+        "color_temperature_coolest": 153,
+        "color_temperature_physical_warmest": 500,
+        "color_temperature_physical_coolest": 142,
+        "identification_number": [],
+        "gtin": [],
+        "firmware_version": [],
+        "hardware_version": [],
+        "gear_scenes": [
+          {
+            "number": 0,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 1,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 2,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 3,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 4,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 5,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 6,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 7,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 8,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 9,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 10,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 11,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 12,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 13,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 14,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 15,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          }
+        ],
+        "power_on_color": {
+          "color_type": 0
+        },
+        "system_failure_color": {
+          "color_type": 0
+        }
+      },
+      {
+        "is_group": false,
+        "name": "Collision",
+        "address": 63,
+        "physical_minimum": 1,
+        "fade_time": 2,
+        "fade_rate": 2,
+        "ext_fade_time_multiplier": 0,
+        "ext_fade_time_base": 0,
+        "min_level": 1,
+        "max_level": 254,
+        "dimming_curve": 0,
+        "power_on_level": 1,
+        "system_failure_level": 0,
+        "gear_groups": [],
+        "device_types": [],
+        "device_type_selected": 0,
+        "dt6_features": 0,
+        "color_type_features": 0,
+        "color_status": 0,
+        "color_temperature_warmest": 454,
+        "color_temperature_coolest": 153,
+        "color_temperature_physical_warmest": 500,
+        "color_temperature_physical_coolest": 142,
+        "identification_number": [],
+        "gtin": [],
+        "firmware_version": [],
+        "hardware_version": [],
+        "gear_scenes": [
+          {
+            "number": 0,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 1,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 2,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 3,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 4,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 5,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 6,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 7,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 8,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 9,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 10,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 11,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 12,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 13,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 14,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          },
+          {
+            "number": 15,
+            "enabled": false,
+            "level": 254,
+            "color_type": 0,
+            "color_temperature": 250,
+            "x_coordinate": 0,
+            "y_coordinate": 0,
+            "primary_n": [],
+            "color": {
+              "red": 255,
+              "green": 255,
+              "blue": 255,
+              "white": 255,
+              "amber": 255,
+              "free": 255
+            }
+          }
+        ],
+        "power_on_color": {
+          "color_type": 0
+        },
+        "system_failure_color": {
+          "color_type": 0
+        },
+        "collision": true
+      }
+    ],
+    "input_devices": []
+  },
+  "pagination": {
+    "section": "control_devices",
+    "offset": 0,
+    "limit": 4,
+    "total": 4,
+    "has_more": false
+  }
+}
