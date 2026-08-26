@@ -90,7 +90,13 @@ class AtiosConfigFlow(ConfigFlow, domain=DOMAIN):
             str(k).lower(): (v.decode() if isinstance(v, bytes) else v)
             for k, v in (discovery_info.properties or {}).items()
         }
-        uid = props.get("uid") or props.get("serial") or props.get("serialnumber")
+        # SmartCore advertises _atios._tcp with TXT: sn, model, fw, host, txtvers
+        uid = (
+            props.get("sn")
+            or props.get("serial")
+            or props.get("serialnumber")
+            or props.get("uid")
+        )
         unique = uid.replace("-", "") if uid else host
         await self.async_set_unique_id(unique)
         self._abort_if_unique_id_configured(updates={CONF_HOST: host})

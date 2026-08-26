@@ -76,6 +76,17 @@ class AtiosHub:
     def info(self) -> dict:
         return self._info
 
+    @property
+    def latest_version(self) -> str | None:
+        """Available firmware version, from the /ota_status 'latest' block.
+
+        Populated after async_ota_check(); None until a check has run.
+        """
+        latest = self._info.get("latest")
+        if isinstance(latest, dict):
+            return latest.get("version_string")
+        return None
+
     async def async_fetch_info(self) -> dict:
         """Read GET /ota_status (serial, firmware version, update flag)."""
         try:
@@ -139,6 +150,21 @@ class AtiosHub:
         except Exception as err:  # noqa: BLE001
             _LOGGER.error("Atios %s: OTA trigger failed: %s", self._host, err)
             return False
+
+    async def async_ota_check(self) -> None:
+        """Ask the device to check for updates (POST /cmd/ota_update_check).
+
+        Afterwards /ota_status carries a 'latest' block with the available
+        version. Best-effort: firmware without the endpoint just 404s.
+        """
+        try:
+            async with self._session.post(
+                f"{self._base_url}/cmd/ota_update_check",
+                timeout=aiohttp.ClientTimeout(total=10),
+            ) as resp:
+                resp.raise_for_status()
+        except Exception as err:  # noqa: BLE001
+            _LOGGER.debug("Atios %s: ota_update_check failed: %s", self._host, err)
 
     # ---- lifecycle --------------------------------------------------------
 

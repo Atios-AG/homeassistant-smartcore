@@ -63,10 +63,9 @@ class AtiosFirmwareUpdate(UpdateEntity):
 
     @property
     def latest_version(self) -> str | None:
-        # No confirmed local "latest" source yet -> report up to date. Atios are
-        # adding an 'ota_update_check' endpoint; once it reports the available
-        # version, return it here and HA will show the update + Install button.
-        return self._hub.sw_version
+        # From /ota_status 'latest' block after ota_update_check (fw 2.7.9+).
+        # Falls back to installed (shows "up to date") until a check has run.
+        return self._hub.latest_version or self._hub.sw_version
 
     @property
     def release_url(self) -> str | None:
@@ -87,6 +86,7 @@ class AtiosFirmwareUpdate(UpdateEntity):
         await self._hub.async_trigger_ota()
 
     async def async_update(self) -> None:
+        await self._hub.async_ota_check()
         await self._hub.async_fetch_info()
         # If the firmware changed (e.g. updated from the SmartCore web UI),
         # push the new version into the device registry so the device card's
