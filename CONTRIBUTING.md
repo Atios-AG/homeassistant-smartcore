@@ -9,7 +9,9 @@ SmartCore. Steps 4 and 5 have since landed (light addresses are configurable via
 the options flow, and the zeroconf match entries are in `manifest.json`) — they
 are kept here as the verification procedure.
 
-1. **Confirm the WS endpoint** — start HA with debug logging for `custom_components.atios`;
+1. **Confirm the WS endpoint** — turn on **DALI IP Interface** (System → DALI in the
+   SmartCore web UI; without it `ws://<host>/` connects but never streams
+   `daliMonitor`). Start HA with debug logging for `custom_components.atios`;
    confirm `websocket connected`. If not, the native HTTP path still drives lights.
 2. **Verify QUERY answers** — call `atios.send_dali_frame` with `data: [1, 160]`
    (`QUERY ACTUAL LEVEL` to address 0), `wait_for_answer: true`, and check the
@@ -19,6 +21,8 @@ are kept here as the verification procedure.
    directly to named gestures; if any print `gesture=?` (Device/Instance
    scheme), note the `info=` value and confirm it against `PUSHBUTTON_EVENTS`.
    In HA, each button auto-appears as an `event` entity on first press.
+   `ws://<host>/` serves one client at a time, so while the script runs HA
+   receives nothing; reload the integration afterwards.
 4. **Wire real lights** — replace the broadcast-only list in `light.py` with the
    discovered short addresses (or add an options flow).
 5. **mDNS** — the zeroconf flow is already wired. Confirm the SmartCore's real

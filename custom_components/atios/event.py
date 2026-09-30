@@ -123,7 +123,7 @@ class _ButtonManager:
             return
         decoded = decode_input_event(list(event.data), event.bits)
         if decoded is None:
-            return  # 16-bit control-gear traffic, not an input event
+            return  # control-gear traffic or a 24-bit command, not an input event
 
         payload = {
             "raw": decoded.raw,

@@ -12,6 +12,16 @@ looks like a monitored DALI frame with the integration's own decoder.
 Use this to (a) discover the correct ws URL — try a few paths until one connects —
 and (b) confirm the daliMonitor envelope by pressing physical buttons and reading
 the raw JSON printed for each frame.
+
+Two things the firmware imposes (see custom_components/atios/hub.py):
+
+  * daliMonitor JSON only flows while the SmartCore's "DALI IP Interface"
+    setting (System → DALI in the web UI) is on. The script checks /settings
+    and warns if it is off.
+  * ws://<host>/ serves one client at a time: connecting here takes the stream
+    away from Home Assistant, and HA stays silent after this script exits
+    until its socket reconnects. Reload the Atios integration (or restart HA)
+    when you are done.
 """
 
 from __future__ import annotations
@@ -43,9 +53,26 @@ async def _try(session, url):
         return None
 
 
+async def _check_ip_interface(session, base: str) -> None:
+    try:
+        async with session.get(
+            f"http://{base}/settings", timeout=aiohttp.ClientTimeout(total=5)
+        ) as resp:
+            body = await resp.json(content_type=None)
+    except Exception as e:  # noqa: BLE001
+        print(f"could not read /settings ({type(e).__name__}); skipping DALI IP Interface check")
+        return
+    if isinstance(body, dict) and body.get("dali_ip_interface") is False:
+        print("WARNING: \"DALI IP Interface\" is OFF on this SmartCore — no daliMonitor")
+        print("         JSON will arrive. Turn it on under System → DALI in the web UI.\n")
+
+
 async def main(host: str, explicit: str | None) -> None:
     base = host.replace("http://", "", 1).replace("https://", "", 1).rstrip("/")
     async with aiohttp.ClientSession() as session:
+        await _check_ip_interface(session, base)
+        print("note: while connected to ws://<host>/ this script takes the event stream")
+        print("      from Home Assistant; reload the Atios integration afterwards.\n")
         ws = None
         if explicit:
             print(f"connecting to {explicit} ...")

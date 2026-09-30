@@ -61,6 +61,16 @@ Works standalone or alongside a Matter-paired SmartCore.
 
    [![Open your Home Assistant instance and start setting up a new integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=atios)
 
+6. **For buttons and sensors:** in the SmartCore web interface, go to
+   **System → DALI** and turn on **DALI IP Interface**. Without it the
+   SmartCore sends no DALI bus events to Home Assistant (lights still work).
+   The integration raises a repair notice while it is off.
+
+   SmartCore firmware 3.2.2 (built on ESP-IDF v5.5.5/v6.0.1+) sends no events at all on
+   this interface, whatever the setting: its websocket never registers
+   clients. The integration detects this and raises a repair notice; it needs
+   a SmartCore firmware with the fix.
+
 We plan to submit this integration to Home Assistant core in a bit.
 
 ## Status
@@ -68,7 +78,7 @@ We plan to submit this integration to Home Assistant core in a bit.
 | Piece | State |
 |---|---|
 | DALI frame encode/decode (`dali.py`) | ✅ verified against reference frames (`FF 10` goto-scene, `01 91` query-gear-present) |
-| Transport (`hub.py`) | ✅ native aiohttp; HTTP `/api/dali/iface` confirmed on device, `ws://<host>/ws` monitor connects (101) |
+| Transport (`hub.py`) | ✅ native aiohttp; HTTP `/api/dali/iface` confirmed on device; `daliMonitor` stream on `ws://<host>/` (needs **DALI IP Interface** on) |
 | Broadcast light + brightness/on/off | ✅ |
 | NVRAM device model (`nvram.py`) | ✅ reads `/api/dali/nvm` (control + input devices, paginated); parser verified against captured fixtures |
 | Named lights from NVRAM | ✅ every configured short address and group becomes a named light; legacy options list as fallback |

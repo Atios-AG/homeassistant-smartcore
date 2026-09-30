@@ -80,6 +80,16 @@ def test_non_event_frame():
     assert dali.decode_input_event([1, 2], 24) is None
 
 
+def test_24bit_command_is_not_event():
+    # bit16 set = 24-bit command, not an event. Same address/instance bytes as
+    # the golden button frames, which would otherwise decode as presses.
+    assert dali.decode_input_event([7, 4, 1], 24) is None  # device 3, instance byte 0x04
+    assert dali.decode_input_event([7, 136, 2], 24) is None
+    assert dali.decode_input_event([0xFF, 0xFE, 0x00], 24) is None  # broadcast command
+    # the event twin (bit16 clear) still decodes
+    assert dali.decode_input_event([6, 4, 1], 24).gesture == "button_pressed"
+
+
 if __name__ == "__main__":
     for name, fn in sorted(globals().items()):
         if name.startswith("test_") and callable(fn):
