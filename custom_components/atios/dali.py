@@ -2,9 +2,10 @@
 
 This module is deliberately pure (no I/O, no Home Assistant imports) so it can
 be unit-tested on its own. The Atios SmartCore does *not* expose the Lunatone
-REST device API — only the raw ``daliFrame`` / ``daliAnswer`` / ``daliMonitor``
-websocket types. So every light action is expressed as a 16-bit forward frame
-and every status read is a QUERY answered on the same websocket.
+REST device API, so every light action is expressed as a raw 16-bit forward
+frame and every status read is a QUERY; hub.py sends both over the HTTP
+``/api/dali/iface`` endpoint. Bus traffic (incl. input events) comes back as
+``daliMonitor`` frames on the websocket and is decoded here.
 
 DALI-2 IEC 62386 forward-frame reference (16-bit):
 
@@ -135,7 +136,7 @@ def command(target: Target, opcode: int, *, send_twice: bool = False) -> Frame:
 
 
 def query(target: Target, opcode: int) -> Frame:
-    """A QUERY command; result comes back as a daliAnswer on the same connection."""
+    """A QUERY command; the backward-frame answer is returned by hub.send_frame."""
     return Frame(
         data=[target._address_byte(command=True), opcode & MASK],
         wait_for_answer=True,
@@ -257,7 +258,8 @@ def decode_input_event(data: list[int], bits: int) -> InputEvent | None:
 
     24-bit event frame (device-addressed, the Lunatone default), bits [23..0]:
 
-        byte0: 0 AAAAAA 0   short address 0..63 in bits 22..17
+        byte0: 0 AAAAAA 0   short address 0..63 in bits 22..17; bit16 is 0 for
+                            every event message (1 = 24-bit command)
         byte1: S TTTTT DD   S=bit15 scheme (0=Device,1=Device/Instance)
                             TTTTT=bits 14..10 (instance TYPE or NUMBER)
                             DD=bits 9..8 (top of event info)
@@ -270,6 +272,11 @@ def decode_input_event(data: list[int], bits: int) -> InputEvent | None:
     if bits != 24 or len(data) < 3:
         return None
     b0, b1, b2 = data[0] & 0xFF, data[1] & 0xFF, data[2] & 0xFF
+    if b0 & 0x01:
+        # bit16 set -> a 24-bit command to control devices (e.g. from another
+        # bus master), not an event; the SmartCore firmware splits them the
+        # same way (dali_transport_layer.c, raw_frame & 0x10000).
+        return None
     event_info = ((b1 & 0x03) << 8) | b2  # bits 9..0
     field = (b1 >> 2) & 0x1F  # bits 14..10
 

@@ -23,17 +23,18 @@ the device, which in short is:
 5. Pair the SmartCore with Home Assistant via **Matter**. Every light, blind
    and sensor from the Accessory Manager shows up as its own entity.
 
-## What this repo is for: expert use
+## Who this is for
 
-This integration gives you **raw DALI access** from Home Assistant: send and
-receive arbitrary DALI commands, for example to process live DALI-2 events
-from sensors that the SmartCore and its Matter integration do not support yet.
+This integration is for expert users who want **raw DALI access** from Home
+Assistant: send and receive arbitrary DALI commands, for example to process
+live DALI-2 events from sensors that the SmartCore and its Matter integration
+do not support yet.
 
-Examples provided for controlling the lights (control gear) and receiving
-values from DALI-2 sensors (control devices), a general DALI monitor, a DALI
-scene recall, a firmware update entity, and the SmartCore web UI as a sidebar
-panel. Fully local (push over LAN), no cloud, no external Python dependencies.
-Works standalone or alongside a Matter-paired SmartCore.
+It ships with examples for controlling lights (control gear), reading DALI-2
+sensors (control devices), a general DALI monitor, DALI scene recall, a
+firmware update entity, and the SmartCore web UI as a sidebar panel. Fully
+local (push over LAN), no cloud, no external Python dependencies. Works
+standalone or alongside a Matter-paired SmartCore.
 
 ## Installation
 
@@ -61,6 +62,16 @@ Works standalone or alongside a Matter-paired SmartCore.
 
    [![Open your Home Assistant instance and start setting up a new integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=atios)
 
+6. **For buttons and sensors:** in the SmartCore web interface, go to
+   **System → DALI** and turn on **DALI IP Interface**. Without it the
+   SmartCore sends no DALI bus events to Home Assistant (lights still work).
+   The integration raises a repair notice while it is off.
+
+   SmartCore firmware 3.2.2 (built on ESP-IDF v5.5.5/v6.0.1+) sends no events at all on
+   this interface, whatever the setting: its websocket never registers
+   clients. The integration detects this and raises a repair notice; it needs
+   a SmartCore firmware with the fix.
+
 We plan to submit this integration to Home Assistant core in a bit.
 
 ## Status
@@ -68,7 +79,7 @@ We plan to submit this integration to Home Assistant core in a bit.
 | Piece | State |
 |---|---|
 | DALI frame encode/decode (`dali.py`) | ✅ verified against reference frames (`FF 10` goto-scene, `01 91` query-gear-present) |
-| Transport (`hub.py`) | ✅ native aiohttp; HTTP `/api/dali/iface` confirmed on device, `ws://<host>/ws` monitor connects (101) |
+| Transport (`hub.py`) | ✅ native aiohttp; HTTP `/api/dali/iface` confirmed on device; `daliMonitor` stream on `ws://<host>/` (needs **DALI IP Interface** on) |
 | Broadcast light + brightness/on/off | ✅ |
 | NVRAM device model (`nvram.py`) | ✅ reads `/api/dali/nvm` (control + input devices, paginated); parser verified against captured fixtures |
 | Named lights from NVRAM | ✅ every configured short address and group becomes a named light; legacy options list as fallback |
@@ -82,7 +93,7 @@ We plan to submit this integration to Home Assistant core in a bit.
 | Firmware `update` entity | ✅ installed version from `/ota_status`; latest-version source still needed for update *notifications* |
 | Web-UI iframe panel | ✅ sidebar panel via options flow; probes for X-Frame-Options / CSP / mixed-content and warns |
 
-Confirmed on SmartCore firmware 2.7.5.
+Confirmed on SmartCore firmware 3.2.3.
 
 ## Contributing
 

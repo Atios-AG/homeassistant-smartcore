@@ -37,19 +37,18 @@ SERVICE_RECALL_SCENE = "recall_scene"
 RECONNECT_MIN = 2
 RECONNECT_MAX = 60
 
-# Monitor-stream keepalive. The SmartCore streams daliMonitor frames only to a
-# ws client that periodically sends the text "ping" (confirmed on fw 2.7.9:
-# the web UI's DALI Monitor "Start" does exactly this, ~every 16 s). The first
-# ping enables the stream; it stops if pings lapse. We send it well inside that
-# window.
-MONITOR_PING = "ping"
-MONITOR_PING_INTERVAL = 10
+# Repair issue raised while the SmartCore's "DALI IP Interface" setting is off.
+# The daliMonitor stream on ws://<host>/ (every button/sensor event) is only
+# sent while that setting is on; it is off by default.
+ISSUE_DALI_IP_DISABLED = "dali_ip_interface_disabled"
 
-# The bus monitor is a GLOBAL device state enabled via POST /cmd/dali_monitor_start
-# (the ws "ping" is only keepalive). Because it's global, anyone stopping the
-# web UI's DALI Monitor disables our stream too, so we re-assert start on this
-# cadence (seconds) from the keepalive loop.
-MONITOR_START_REASSERT_S = 30
+# The Lunatone socket greets every client with {"type":"info"} right after the
+# handshake, whatever the settings. No Lunatone JSON within this many seconds
+# means the device will not stream on this socket at all: SmartCore firmware
+# built on ESP-IDF v5.5.5/v6.0.1+ (seen on 3.2.2) never registers websocket
+# clients, so it drops every message it would send them.
+LUNATONE_GREETING_TIMEOUT_S = 10
+ISSUE_LUNATONE_SILENT = "lunatone_socket_silent"
 
 # Software gesture timing for Device/Instance-scheme couplers.
 # Confirmed on real Atios button couplers (2026-08-27): the bus only ever
