@@ -23,17 +23,18 @@ the device, which in short is:
 5. Pair the SmartCore with Home Assistant via **Matter**. Every light, blind
    and sensor from the Accessory Manager shows up as its own entity.
 
-## What this repo is for: expert use
+## Who this is for
 
-This integration gives you **raw DALI access** from Home Assistant: send and
-receive arbitrary DALI commands, for example to process live DALI-2 events
-from sensors that the SmartCore and its Matter integration do not support yet.
+This integration is for expert users who want **raw DALI access** from Home
+Assistant: send and receive arbitrary DALI commands, for example to process
+live DALI-2 events from sensors that the SmartCore and its Matter integration
+do not support yet.
 
-Examples provided for controlling the lights (control gear) and receiving
-values from DALI-2 sensors (control devices), a general DALI monitor, a DALI
-scene recall, a firmware update entity, and the SmartCore web UI as a sidebar
-panel. Fully local (push over LAN), no cloud, no external Python dependencies.
-Works standalone or alongside a Matter-paired SmartCore.
+It ships with examples for controlling lights (control gear), reading DALI-2
+sensors (control devices), a general DALI monitor, DALI scene recall, a
+firmware update entity, and the SmartCore web UI as a sidebar panel. Fully
+local (push over LAN), no cloud, no external Python dependencies. Works
+standalone or alongside a Matter-paired SmartCore.
 
 ## Installation
 
