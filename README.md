@@ -53,7 +53,7 @@ Works standalone or alongside a Matter-paired SmartCore.
 4. Search for **Atios SmartCore** in HACS, click **Download**, and restart
    Home Assistant once more.
 
-   [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=AtiosAG&repository=homeassistant-smartcore&category=integration)
+   [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Atios-AG&repository=homeassistant-smartcore&category=integration)
 
 5. Go to **Settings → Devices & services**, click **Add integration**
    (bottom right), select **Atios SmartCore**, and enter your SmartCore's
