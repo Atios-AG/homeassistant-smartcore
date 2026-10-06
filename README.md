@@ -92,7 +92,7 @@ We plan to submit this integration to Home Assistant core in a bit.
 | Firmware `update` entity | ✅ installed version from `/ota_status`; latest-version source still needed for update *notifications* |
 | Web-UI iframe panel | ✅ sidebar panel via options flow; probes for X-Frame-Options / CSP / mixed-content and warns |
 
-Confirmed on SmartCore firmware 2.7.5.
+Confirmed on SmartCore firmware 3.2.3.
 
 ## Contributing
 
