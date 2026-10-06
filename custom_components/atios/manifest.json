@@ -3,9 +3,9 @@
   "name": "Atios SmartCore",
   "codeowners": [],
   "config_flow": true,
-  "documentation": "https://github.com/AtiosAG/homeassistant-smartcore",
+  "documentation": "https://github.com/Atios-AG/homeassistant-smartcore",
   "iot_class": "local_push",
-  "issue_tracker": "https://github.com/AtiosAG/homeassistant-smartcore/issues",
+  "issue_tracker": "https://github.com/Atios-AG/homeassistant-smartcore/issues",
   "requirements": [],
   "version": "0.10.0",
   "zeroconf": [
